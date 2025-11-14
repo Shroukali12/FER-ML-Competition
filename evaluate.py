@@ -1,28 +1,22 @@
 import pandas as pd
+import sys
 from sklearn.metrics import accuracy_score
-import os
 
-# Ensure submissions folder exists
-os.makedirs("submissions", exist_ok=True)
+# Check command-line arguments
+if len(sys.argv) < 3:
+    print("Usage: python evaluate.py <submission_csv> <labels_csv>")
+    sys.exit(1)
 
-def evaluate(submission_path="submission/submission.csv",
-             labels_path="evaluation/test_labels.csv"):
-    """
-    Evaluates a participant's submission against hidden labels.
-    """
-    # Load submission
-    submission = pd.read_csv(submission_path)
+submission_csv = sys.argv[1]  # e.g., submission/team1.csv
+labels_csv = sys.argv[2]      # e.g., private_data/test_labels.csv
 
-    # Load hidden labels
-    hidden_labels = pd.read_csv(labels_path)
+# Load CSVs
+submission = pd.read_csv(submission_csv)
+labels = pd.read_csv(labels_csv)
 
-    # Merge on ID to make sure we align
-    merged = pd.merge(hidden_labels, submission, on="id")
+# Merge on id
+merged = pd.merge(labels, submission, on="id")
 
-    # Compute accuracy
-    acc = accuracy_score(merged['emotion'], merged['predicted_label'])
-    print(f"Participant Submission Accuracy: {acc*100:.2f}%")
-    return acc
-
-if __name__ == "__main__":
-    evaluate()
+# Compute accuracy
+acc = accuracy_score(merged["emotion"], merged["predicted_label"])
+print(f"Accuracy: {acc*100:.2f}%")
